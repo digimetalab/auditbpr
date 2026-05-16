@@ -37,7 +37,11 @@
   },
   "repository": {
     "type": "git",
-    "url": ""
+    "url": "git+https://github.com/digimetalab/auditbpr.git"
+  },
+  "homepage": "https://github.com/digimetalab/auditbpr#readme",
+  "bugs": {
+    "url": "https://github.com/digimetalab/auditbpr/issues"
   },
   "files": [
     "bin/",
