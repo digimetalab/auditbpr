@@ -1,0 +1,56 @@
+{
+  "name": "auditbpr",
+  "version": "1.0.0",
+  "description": "AI-powered multi-agent audit & investigation system for Bank Perkreditan Rakyat (BPR) Indonesia",
+  "main": "src/index.js",
+  "bin": {
+    "auditbpr": "./bin/cli.js"
+  },
+  "scripts": {
+    "start": "node bin/cli.js",
+    "test": "echo \"No tests configured yet\" && exit 0"
+  },
+  "keywords": [
+    "bpr",
+    "audit",
+    "bank",
+    "ojk",
+    "indonesia",
+    "financial-audit",
+    "ai-agent",
+    "multi-agent",
+    "forensic",
+    "osint",
+    "camels",
+    "regulatory-compliance"
+  ],
+  "author": "",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "chalk": "^4.1.2",
+    "commander": "^12.0.0",
+    "inquirer": "^8.2.6",
+    "ora": "^5.4.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "files": [
+    "bin/",
+    "src/",
+    "agents/",
+    "orchestrator/",
+    "tools/",
+    "templates/",
+    "config/",
+    "platforms/",
+    "data/README.md",
+    "SKILL.md",
+    "README.md",
+    "LICENSE"
+  ]
+}

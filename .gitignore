@@ -1,0 +1,45 @@
+# BPR Audit Intelligence System — .gitignore
+
+# Financial data (CONFIDENTIAL — do not commit)
+data/*.xlsx
+data/*.xls
+data/*.csv
+data/*.json
+!data/.gitkeep
+
+# Report output (CONFIDENTIAL)
+output/markdown/
+output/pdf/
+output/agents/
+output/logs/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+.eggs/
+.venv/
+venv/
+env/
+
+# Node
+node_modules/
+npm-debug.log*
+package-lock.json
+
+# CLAUDE.md (auto-generated, contains sensitive BPR data)
+CLAUDE.md
+
+# OS
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Logs
+*.log

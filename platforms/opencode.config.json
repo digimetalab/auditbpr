@@ -1,0 +1,82 @@
+{
+  "$schema": "https://opencode.ai/config.schema.json",
+  "project": "BPR Audit Intelligence System",
+  "version": "2.0.0",
+
+  "model": "anthropic/claude-opus-4",
+  "fallback_models": [
+    "google/gemini-2.5-pro",
+    "openai/gpt-4.1",
+    "openai/o3"
+  ],
+
+  "system_prompt": "Kamu adalah Chief Audit Officer AI dengan pengalaman 30 tahun di BPR Indonesia. Bahasa output: Bahasa Indonesia Formal (standar OJK). Satuan: Ribuan Rupiah. Setiap temuan harus didukung bukti.",
+
+  "context_files": [
+    "SKILL.md",
+    "orchestrator/SKILL.md",
+    "config/regulatory_thresholds.md",
+    "config/industry_benchmarks.md",
+    "templates/red_flag_taxonomy.md",
+    "templates/risk_scoring_matrix.md"
+  ],
+
+  "tools": {
+    "web_search": true,
+    "file_read": true,
+    "file_write": true,
+    "bash": true,
+    "python": true,
+    "terminal": true
+  },
+
+  "bpr_config": {
+    "_comment": "EDIT BAGIAN INI sebelum menjalankan audit",
+    "nama_bpr": "PT BPR Contoh Sejahtera",
+    "kota": "Bandung",
+    "provinsi": "Jawa Barat",
+    "periode": "2020-2024",
+    "no_izin_ojk": "",
+    "pengurus": [
+      { "jabatan": "Direktur Utama",  "nama": "Budi Santoso" },
+      { "jabatan": "Direktur",        "nama": "Siti Rahayu" },
+      { "jabatan": "Komisaris Utama", "nama": "Ahmad Wijaya" },
+      { "jabatan": "Komisaris",       "nama": "Dewi Kusuma" }
+    ],
+    "pemegang_saham": [
+      { "nama": "PT Investasi Maju Sejahtera", "persen": 60, "jenis": "badan_hukum" },
+      { "nama": "Budi Santoso",                "persen": 25, "jenis": "individu" },
+      { "nama": "Siti Rahayu",                 "persen": 15, "jenis": "individu" }
+    ],
+    "riwayat_kap": [
+      { "tahun": "2020-2022", "kap": "KAP Budi & Rekan",    "ap": "Budi Santoso, CPA" },
+      { "tahun": "2023-2024", "kap": "KAP Wijaya Partners", "ap": "Andi Wijaya, CPA" }
+    ]
+  },
+
+  "data_files": {
+    "neraca":           "data/neraca.xlsx",
+    "laba_rugi":        "data/laba_rugi.xlsx",
+    "aset_produktif":   "data/aset_produktif.xlsx",
+    "rasio_keuangan":   "data/rasio.xlsx"
+  },
+
+  "output": {
+    "dir": "output/",
+    "markdown_dir": "output/markdown/",
+    "pdf_dir": "output/pdf/",
+    "agents_dir": "output/agents/",
+    "logs_dir": "output/logs/"
+  },
+
+  "execution": {
+    "language": "id",
+    "layer1_parallel": true,
+    "layer2_parallel": true,
+    "layer3_sequential": true,
+    "pdf_export": true,
+    "pdf_engine": "pandoc"
+  },
+
+  "initial_prompt": "Mulai BPR Audit Intelligence System. Baca SKILL.md dan orchestrator/SKILL.md. Baca data BPR dari bpr_config di file ini. Baca file data di folder data/. Jalankan audit komprehensif lengkap semua 4 fase sesuai orchestrator. Output laporan akhir ke output/markdown/ dan output/pdf/."
+}

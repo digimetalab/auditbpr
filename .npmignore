@@ -1,0 +1,14 @@
+# Exclude from npm publish
+.git
+.gitignore
+data/*.xlsx
+data/*.csv
+data/*.json
+output/
+CLAUDE.md
+*.log
+__pycache__/
+*.pyc
+.vscode/
+.idea/
+graphify-out/
