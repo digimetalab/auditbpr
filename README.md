@@ -1,4 +1,4 @@
-<![CDATA[<div align="center">
+<div align="center">
 
 # 🏦 AuditBPR
 
@@ -22,44 +22,44 @@
 
 ```mermaid
 flowchart TB
-    subgraph INPUT["📂 INPUT"]
-        D1["neraca.xlsx<br/>Balance Sheet"]
-        D2["laba_rugi.xlsx<br/>Profit & Loss"]
-        D3["aset_produktif.xlsx<br/>Asset Quality"]
-        D4["rasio.xlsx<br/>Financial Ratios"]
+    subgraph INPUT["INPUT"]
+        D1["neraca.xlsx"]
+        D2["laba_rugi.xlsx"]
+        D3["aset_produktif.xlsx"]
+        D4["rasio.xlsx"]
     end
 
-    subgraph PHASE0["⚙️ PHASE 0 — Parse & Validate"]
-        P0["Orchestrator<br/>Data Parsing & Schema Validation"]
+    subgraph PHASE0["PHASE 0: Parse and Validate"]
+        P0["Orchestrator - Data Parsing"]
     end
 
-    subgraph LAYER1["🔵 LAYER 1 — Financial Analysis (Parallel)"]
-        A01["Agent 01<br/>BPR Profile &<br/>Reputation"]
-        A02["Agent 02<br/>Balance Sheet<br/>Analysis"]
-        A03["Agent 03<br/>P&L<br/>Analysis"]
-        A04["Agent 04<br/>Productive Asset<br/>Quality & NPL"]
-        A05["Agent 05<br/>Financial Ratios<br/>9 OJK Metrics"]
+    subgraph LAYER1["LAYER 1: Financial Analysis - Parallel"]
+        A01["01 BPR Profile"]
+        A02["02 Balance Sheet"]
+        A03["03 Profit and Loss"]
+        A04["04 Asset Quality"]
+        A05["05 Financial Ratios"]
     end
 
-    subgraph LAYER2["🟢 LAYER 2 — OSINT Investigation (Parallel)"]
-        A06["Agent 06<br/>KYC Directors &<br/>Commissioners"]
-        A07["Agent 07<br/>KYC Shareholders &<br/>Beneficial Owners"]
-        A08["Agent 08<br/>KYC Auditor<br/>Firm (KAP)"]
+    subgraph LAYER2["LAYER 2: OSINT Investigation - Parallel"]
+        A06["06 KYC Directors"]
+        A07["07 KYC Shareholders"]
+        A08["08 KYC Auditor"]
     end
 
-    subgraph LAYER3["🔴 LAYER 3 — Synthesis & Forensics (Sequential)"]
-        A09["Agent 09<br/>Cross-Reference &<br/>Red Flag Detection"]
-        A10["Agent 10<br/>Forensic Analysis &<br/>Trend Intelligence"]
-        A11["Agent 11<br/>Regulatory<br/>Compliance Check"]
+    subgraph LAYER3["LAYER 3: Synthesis - Sequential"]
+        A09["09 Cross-Reference and Red Flags"]
+        A10["10 Forensic Analysis"]
+        A11["11 Regulatory Compliance"]
     end
 
-    subgraph PHASE4["📄 PHASE 4 — Final Report"]
-        REPORT["Orchestrator<br/>Risk Scoring + Report Assembly"]
+    subgraph PHASE4["PHASE 4: Final Report"]
+        REPORT["Risk Scoring + Report Assembly"]
     end
 
-    subgraph OUTPUT["📊 OUTPUT"]
-        MD["📝 Markdown Report<br/>80–150 pages"]
-        PDF["📕 PDF Report<br/>OJK-style format"]
+    subgraph OUTPUT["OUTPUT"]
+        MD["Markdown Report"]
+        PDF["PDF Report"]
     end
 
     INPUT --> PHASE0
@@ -70,14 +70,6 @@ flowchart TB
     A09 --> A10 --> A11
     LAYER3 --> PHASE4
     PHASE4 --> OUTPUT
-
-    style INPUT fill:#1a1a2e,stroke:#16213e,color:#e8e8e8
-    style PHASE0 fill:#0f3460,stroke:#16213e,color:#e8e8e8
-    style LAYER1 fill:#1a1a4e,stroke:#3a86ff,color:#e8e8e8
-    style LAYER2 fill:#1a3a2e,stroke:#2ec4b6,color:#e8e8e8
-    style LAYER3 fill:#3a1a1a,stroke:#e63946,color:#e8e8e8
-    style PHASE4 fill:#2a1a3a,stroke:#7b2cbf,color:#e8e8e8
-    style OUTPUT fill:#1a1a2e,stroke:#16213e,color:#e8e8e8
 ```
 
 ---
@@ -96,15 +88,15 @@ sequenceDiagram
     U->>O: auditbpr run --bpr "PT BPR X" --periode 2020-2024
     
     Note over O: Phase 0: Parse & Validate
-    O->>O: Parse Excel/CSV → JSON
+    O->>O: Parse Excel/CSV to JSON
     O->>O: Validate balance sheet identity
 
     Note over L1,L2: Phase 1+2: Parallel Execution
     par Financial Analysis
         O->>L1: Agent 01: BPR Profile (OSINT)
         O->>L1: Agent 02: Balance Sheet (5-year)
-        O->>L1: Agent 03: P&L (5-year)
-        O->>L1: Agent 04: Asset Quality & NPL
+        O->>L1: Agent 03: Profit and Loss
+        O->>L1: Agent 04: Asset Quality and NPL
         O->>L1: Agent 05: Financial Ratios (9 OJK)
     and OSINT Investigation
         O->>L2: Agent 06: KYC Directors
@@ -117,13 +109,13 @@ sequenceDiagram
 
     Note over L3: Phase 3: Sequential Synthesis
     O->>L3: Agent 09: Cross-Reference & Red Flags
-    L3->>L3: Agent 10: Forensic & Beneish M-Score
+    L3->>L3: Agent 10: Forensic and Beneish M-Score
     L3->>L3: Agent 11: Regulatory Compliance
     L3-->>O: 3 synthesis reports
 
     Note over R: Phase 4: Assembly
     O->>R: CAMELS-BPR Scoring + Report Template
-    R-->>U: 📄 Final Report (MD + PDF)
+    R-->>U: Final Report in MD and PDF
 ```
 
 ---
@@ -287,26 +279,23 @@ The system generates an **80–150 page** professional audit report:
 
 ```mermaid
 graph LR
-    subgraph POJK3["POJK 3/POJK.03/2022<br/>BPR Health Assessment"]
-        F1["1️⃣ Risk Profile<br/>Inherent Risk +<br/>Risk Management Quality"]
-        F2["2️⃣ Governance<br/>GCG Implementation<br/>& Compliance"]
-        F3["3️⃣ Profitability<br/>Earnings Performance<br/>& Efficiency"]
-        F4["4️⃣ Capital<br/>Capital Adequacy<br/>& Sustainability"]
+    subgraph POJK3["POJK 3/POJK.03/2022 - BPR Health Assessment"]
+        F1["1. Risk Profile"]
+        F2["2. Governance"]
+        F3["3. Profitability"]
+        F4["4. Capital"]
     end
 
-    F1 --> CS["Composite<br/>Score"]
+    F1 --> CS["Composite Score"]
     F2 --> CS
     F3 --> CS
     F4 --> CS
 
-    CS --> R1["⭐⭐⭐⭐⭐ Very Healthy"]
-    CS --> R2["⭐⭐⭐⭐ Healthy"]
-    CS --> R3["⭐⭐⭐ Fairly Healthy"]
-    CS --> R4["⭐⭐ Unhealthy"]
-    CS --> R5["⭐ Very Unhealthy"]
-
-    style POJK3 fill:#0d1b2a,stroke:#1b263b,color:#e0e1dd
-    style CS fill:#1b263b,stroke:#415a77,color:#e0e1dd
+    CS --> R1["PK-1: Very Healthy"]
+    CS --> R2["PK-2: Healthy"]
+    CS --> R3["PK-3: Fairly Healthy"]
+    CS --> R4["PK-4: Unhealthy"]
+    CS --> R5["PK-5: Very Unhealthy"]
 ```
 
 > **Note:** Since POJK 3/2022, OJK has transitioned from the traditional CAMELS scoring to a
@@ -431,4 +420,3 @@ or regulatory decisions. All financial data processing complies with
 [npm](https://www.npmjs.com/package/auditbpr) · [GitHub](https://github.com/digimetalab/auditbpr) · [Report Issues](https://github.com/digimetalab/auditbpr/issues)
 
 </div>
-]]>
