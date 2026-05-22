@@ -1,7 +1,7 @@
 # ================================================================
 # BPR AUDIT INTELLIGENCE SYSTEM — ROOT SKILL.md
 # ================================================================
-# Version   : 2.0.0
+# Version   : 1.0.0
 # Platforms : Gemini CLI | Claude Code | Codex | OpenCode
 # Output    : Formal Indonesian (OJK Standard)
 # ================================================================

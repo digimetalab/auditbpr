@@ -17,7 +17,68 @@ Usage:
 import json
 import sys
 import os
-from typing import Dict, List, Optional, Union
+import argparse
+import glob
+from typing import Dict, List, Optional, Union, Any
+
+try:
+    import yaml
+    _HAS_YAML = True
+except ImportError:
+    _HAS_YAML = False
+
+
+# ───────────────────────────────────────────────
+# REGULATORY THRESHOLDS LOADER
+# ───────────────────────────────────────────────
+_THRESHOLDS_CACHE: Optional[Dict] = None
+
+
+def load_thresholds(config_path: Optional[str] = None) -> Dict:
+    """Load regulatory thresholds from YAML config or use hardcoded defaults."""
+    global _THRESHOLDS_CACHE
+    if _THRESHOLDS_CACHE is not None:
+        return _THRESHOLDS_CACHE
+
+    # Default thresholds (hardcoded fallback)
+    defaults: Dict[str, Any] = {
+        "CAR_KPMM": {"minimum": 12, "warning": 14, "healthy": 15},
+        "NPL": {"npl_gross_max": 5, "npl_net_max": 5, "warning_level": 3, "healthy": 2},
+        "BOPO": {"ojk_max": 93.99, "excellent": 85},
+        "LDR": {"optimal_min": 78, "optimal_max": 92},
+        "cash_ratio": {"minimum": 4.05},
+        "ppka_coverage": {"minimum": 100},
+        "collectibility_classification": {
+            "current": {"ppka_rate": 0.5},
+            "special_mention": {"ppka_rate": 10},
+            "substandard": {"ppka_rate": 30},
+            "doubtful": {"ppka_rate": 50},
+            "loss": {"ppka_rate": 100},
+        },
+    }
+
+    if config_path is None:
+        # Try to find config relative to this file
+        tool_dir = os.path.dirname(os.path.abspath(__file__))
+        project_root = os.path.dirname(tool_dir)
+        config_path = os.path.join(project_root, "config", "regulatory_thresholds.yaml")
+
+    if _HAS_YAML and os.path.isfile(config_path):
+        try:
+            with open(config_path, "r", encoding="utf-8") as f:
+                loaded = yaml.safe_load(f)
+            if isinstance(loaded, dict):
+                # Merge loaded into defaults (loaded takes precedence)
+                for key, value in loaded.items():
+                    defaults[key] = value
+                print(f"  [OK] Loaded thresholds from: {config_path}")
+        except Exception as e:
+            print(f"  [!] Could not load thresholds YAML: {e} -- using defaults")
+    elif not _HAS_YAML:
+        pass  # Silently use defaults
+
+    _THRESHOLDS_CACHE = defaults
+    return defaults
 
 
 # ───────────────────────────────────────────────
@@ -489,16 +550,185 @@ def run_demo():
     print(f"  Interpretation : {mscore_result['interpretation']}")
     print(f"\n  Components:")
     for comp, detail in mscore_result["components"].items():
-        flag = "⚠️" if detail["flagged"] else "✅"
+        flag = "[!]" if detail["flagged"] else "[OK]"
         print(f"    {comp:5s}: {detail['value']:8.4f}  {detail['threshold']:>10s}  {flag}")
 
     print("\n" + "=" * 60)
     print("Demo complete.")
 
 
+# ───────────────────────────────────────────────
+# DATA DIRECTORY PROCESSING
+# ───────────────────────────────────────────────
+def process_data_dir(data_dir: str, json_output: bool = False) -> Dict:
+    """Read parsed JSON files from a directory and run all calculations."""
+    results: Dict[str, Any] = {"source": data_dir, "calculations": {}}
+
+    # Load parsed data files
+    json_files = glob.glob(os.path.join(data_dir, "*.json"))
+    if not json_files:
+        print(f"  [!] No JSON files found in {data_dir}")
+        return results
+
+    parsed_data: Dict[str, Any] = {}
+    for jf in json_files:
+        try:
+            with open(jf, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            basename = os.path.basename(jf)
+            parsed_data[basename] = data
+            print(f"  + Loaded: {basename}")
+        except Exception as e:
+            print(f"  [!] Error reading {jf}: {e}")
+
+    thresholds = load_thresholds()
+
+    # Try to run calculations from available parsed data
+    for fname, fdata in parsed_data.items():
+        if not isinstance(fdata, dict):
+            continue
+        ftype = fdata.get("type", "")
+        rows = fdata.get("data", [])
+
+        if ftype == "aset_produktif" and rows:
+            print("  >> Calculating NPL from asset quality data...")
+            npl_input = _extract_npl_data(rows)
+            if npl_input:
+                results["calculations"]["npl"] = calc_npl(npl_input)
+                # PPKA calculation
+                ppka_input = {**npl_input, "ckpn_dibentuk": npl_input.get("ckpn", 0)}
+                results["calculations"]["ppka"] = calc_ppka(ppka_input)
+
+        if ftype == "neraca" and rows:
+            print("  >> Extracting balance sheet data...")
+            car_input = _extract_car_data(rows)
+            if car_input:
+                ppka_result = results["calculations"].get("ppka")
+                if ppka_result and ppka_result.get("shortfall", 0) > 0:
+                    car_input["ppka_shortfall"] = ppka_result["shortfall"]
+                results["calculations"]["car"] = calc_car(car_input)
+
+    # Output
+    if json_output:
+        print(json.dumps(results, indent=2, ensure_ascii=False, default=str))
+    else:
+        _print_results(results)
+
+    return results
+
+
+def _extract_npl_data(rows: List[Dict]) -> Optional[Dict]:
+    """Try to extract NPL-relevant data from parsed asset quality rows."""
+    npl_data: Dict[str, float] = {}
+    key_map = {
+        "lancar": ["lancar", "current"],
+        "dpk": ["dalam perhatian khusus", "dpk", "special mention"],
+        "kurang_lancar": ["kurang lancar", "substandard"],
+        "diragukan": ["diragukan", "doubtful"],
+        "macet": ["macet", "loss"],
+    }
+    for row in rows:
+        for key, value in row.items():
+            if not isinstance(key, str):
+                continue
+            key_lower = key.lower().strip()
+            for npl_key, aliases in key_map.items():
+                for alias in aliases:
+                    if alias in key_lower:
+                        for v in row.values():
+                            if isinstance(v, (int, float)) and v > 0:
+                                npl_data[npl_key] = float(v)
+                                break
+    return npl_data if len(npl_data) >= 3 else None
+
+
+def _extract_car_data(rows: List[Dict]) -> Optional[Dict]:
+    """Try to extract CAR-relevant data from balance sheet rows."""
+    car_data: Dict[str, float] = {}
+    for row in rows:
+        for key, value in row.items():
+            if not isinstance(key, str):
+                continue
+            key_lower = key.lower().strip()
+            if isinstance(value, (int, float)):
+                if "modal inti" in key_lower or "tier 1" in key_lower:
+                    car_data["modal_inti"] = float(value)
+                elif "modal pelengkap" in key_lower or "tier 2" in key_lower:
+                    car_data["modal_pelengkap"] = float(value)
+                elif "total aset" in key_lower or "total aktiva" in key_lower:
+                    car_data["total_aset"] = float(value)
+                elif "ekuitas" in key_lower:
+                    car_data.setdefault("modal_inti", float(value))
+    return car_data if "total_aset" in car_data else None
+
+
+def _print_results(results: Dict) -> None:
+    """Print calculation results in a human-readable format."""
+    calcs = results.get("calculations", {})
+    if not calcs:
+        print("  No calculations could be performed from the available data.")
+        return
+
+    print("\n" + "=" * 60)
+    print("CALCULATION RESULTS")
+    print("=" * 60)
+
+    if "npl" in calcs:
+        npl = calcs["npl"]
+        print(f"\n  NPL Gross : {npl['npl_gross_pct']}%  [{npl['npl_status']}]")
+        print(f"  NPL Net   : {npl['npl_net_pct']}%")
+
+    if "ppka" in calcs:
+        ppka = calcs["ppka"]
+        print(f"\n  PPKA Required : {ppka['ppka_required']:,.2f}")
+        print(f"  PPKA Formed   : {ppka['ppka_formed']:,.0f}")
+        print(f"  Coverage      : {ppka['coverage_ratio_pct']}%  [{ppka['status']}]")
+
+    if "car" in calcs:
+        car = calcs["car"]
+        print(f"\n  CAR          : {car['car_pct']}%  [{car['status']}]")
+        print(f"  Adjusted CAR : {car['adjusted_car_pct']}%")
+
+    print("\n" + "=" * 60)
+
+
 if __name__ == "__main__":
-    if "--demo" in sys.argv:
+    parser = argparse.ArgumentParser(
+        description="BPR Financial Calculator — BPR Audit Intelligence System",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
+    parser.add_argument(
+        "--demo",
+        action="store_true",
+        help="Run demonstration with sample data",
+    )
+    parser.add_argument(
+        "--data",
+        metavar="DIR",
+        help="Read parsed JSON from directory and run all calculations",
+    )
+    parser.add_argument(
+        "--json",
+        action="store_true",
+        help="Output results as JSON",
+    )
+    parser.add_argument(
+        "--thresholds",
+        metavar="YAML",
+        help="Path to regulatory thresholds YAML file",
+    )
+
+    args = parser.parse_args()
+
+    if args.thresholds:
+        load_thresholds(args.thresholds)
+
+    if args.demo:
         run_demo()
+    elif args.data:
+        process_data_dir(args.data, json_output=args.json)
     else:
         print("Usage: python3 tools/financial_calculator.py --demo")
+        print("       python3 tools/financial_calculator.py --data ./output/parsed/")
+        print("       python3 tools/financial_calculator.py --data ./output/parsed/ --json")
         print("  Or import as a module: from tools.financial_calculator import calc_npl")

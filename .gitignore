@@ -12,6 +12,10 @@ output/markdown/
 output/pdf/
 output/agents/
 output/logs/
+output/parsed/
+
+# Agents workflow config (auto-generated)
+.agents/
 
 # Python
 __pycache__/

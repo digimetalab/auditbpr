@@ -1,0 +1,182 @@
+# Regulatory Thresholds — BPR Audit Intelligence System
+# Source: OJK/BI regulations for Indonesian Rural Banks (BPR)
+# Used by: All agents, Orchestrator, financial_calculator.py
+# Last updated: 2024
+
+# ── Capital Adequacy (POJK 5/POJK.03/2015) ─────────────────────
+CAR_KPMM:
+  minimum: 12  # percent
+  warning: 14
+  healthy: 15  # >= 15%
+  note: "CAR = (Tier 1 + Tier 2) / Risk-Weighted Assets × 100"
+
+minimum_paid_up_capital:
+  zone_1:
+    regions: "Jakarta, Banten, West Java"
+    minimum: 6000000  # Rp 6 billion in thousands
+  zone_2:
+    regions: "Other cities in Java & Bali"
+    minimum: 4000000
+  zone_3:
+    regions: "Outside Java & Bali (capital cities)"
+    minimum: 3000000
+  zone_4:
+    regions: "Other areas outside Java & Bali"
+    minimum: 2000000
+
+# ── Asset Quality (POJK 33/POJK.03/2018) ───────────────────────
+NPL:
+  npl_gross_max: 5  # percent
+  npl_net_max: 5
+  warning_level: 3
+  healthy: 2  # < 2%
+  note: "NPL = (Substandard + Doubtful + Loss) / Total Loans × 100"
+
+collectibility_classification:
+  current:
+    criteria: "Payments current, no arrears"
+    ppka_rate: 0.5  # percent
+  special_mention:
+    criteria: "1-90 days past due"
+    ppka_rate: 10
+  substandard:
+    criteria: "91-120 days past due"
+    ppka_rate: 30
+  doubtful:
+    criteria: "121-180 days past due"
+    ppka_rate: 50
+  loss:
+    criteria: "> 180 days past due"
+    ppka_rate: 100
+
+ppka_coverage:
+  minimum: 100  # percent
+  note: "Formed PPKA must >= Required PPKA. Shortfall reduces effective capital."
+
+# ── Credit Concentration Limits / BMPK (POJK 49/POJK.03/2017) ──
+related_party:
+  individual: 10  # percent of BPR's capital
+  group: 20
+  base: "% of BPR's capital"
+  note: "Related party includes management, commissioners, shareholders >10%, and their affiliates"
+
+non_related_party:
+  individual: 20
+  group: 30
+  base: "% of BPR's capital"
+
+# ── Profitability ───────────────────────────────────────────────
+ROA:
+  excellent: 1.5  # > 1.5%
+  healthy_min: 1.25
+  healthy_max: 1.5
+  adequate_min: 0.5
+  adequate_max: 1.24
+  poor_min: 0
+  poor_max: 0.49
+  note: "ROA = Pre-tax Profit / Average Total Assets × 100"
+
+NIM:
+  excellent: 10  # > 10%
+  healthy_min: 8
+  healthy_max: 10
+  adequate_min: 5
+  adequate_max: 7.99
+  poor_min: 3
+  poor_max: 4.99
+  critical: 3  # < 3%
+  note: "NIM = Net Interest Income / Average Productive Assets × 100"
+
+# ── Efficiency ──────────────────────────────────────────────────
+BOPO:
+  excellent: 85  # < 85%
+  healthy_min: 85
+  healthy_max: 89.99
+  adequate_min: 90
+  adequate_max: 93.99
+  poor_min: 94
+  poor_max: 96
+  critical: 96  # > 96%
+  ojk_max: 93.99
+  note: "BOPO = Total Operating Expenses / Total Operating Revenue × 100"
+
+# ── Liquidity ───────────────────────────────────────────────────
+LDR:
+  optimal_min: 78
+  optimal_max: 92
+  acceptable_min: 70
+  acceptable_max: 100
+  warning_low: 70  # < 70%
+  warning_high: 100  # > 100%
+  critical_high: 115  # > 115%
+  note: "LDR = Total Loans / Total Third-Party Funds × 100"
+
+cash_ratio:
+  minimum: 4.05  # percent
+  healthy: 6  # > 6%
+  excellent: 10  # > 10%
+  note: "Cash Ratio = Liquid Assets / Immediate Liabilities × 100"
+
+# ── Governance (POJK 62/POJK.03/2020) ──────────────────────────
+fit_and_proper:
+  requirement: "All directors and commissioners must pass OJK Fit & Proper Test"
+  concurrent_positions: "Directors prohibited from serving at other banks/BPRs"
+  commissioner_limit: 3  # Max financial institutions
+  cooling_off: 6  # months after leaving previous FI
+
+minimum_composition:
+  directors: 2
+  commissioners: 2
+  note: "Must include independent commissioner for BPRs with assets > Rp 80 billion"
+
+# ── Reporting & Transparency (POJK 48/POJK.03/2017) ────────────
+annual_report:
+  deadline: "End of April following fiscal year"
+  content: "Must include audited financial statements"
+
+monthly_report:
+  deadline: "10th of following month"
+  content: "Balance sheet, P&L, asset quality, ratios"
+
+publication:
+  requirement: "Annual financial statements must be published in local newspaper or website"
+
+# ── AML/CFT (POJK 12/POJK.01/2017) ────────────────────────────
+aml_cft_requirements:
+  - "CDD (Customer Due Diligence) for all customers"
+  - "EDD (Enhanced Due Diligence) for PEP and high-risk customers"
+  - "STR (Suspicious Transaction Report) to PPATK"
+  - "CTR (Cash Transaction Report) for transactions >= Rp 500 million"
+  - "KYC officer appointed"
+  - "Internal AML/CFT policy documented"
+
+# ── External Audit (PMK 154/PMK.01/2017) ───────────────────────
+kap_requirements:
+  registration: "Must be registered with PPPK Kemenkeu"
+  ap_license: "Signing AP must have active license"
+  rotation_ap: 3  # Max consecutive years for same AP
+  rotation_kap: 5  # Best practice max years
+  independence: "No business or family ties with BPR management/shareholders"
+
+# ── BPR Health Assessment (SE OJK) ─────────────────────────────
+composite_rating:
+  level_1:
+    label: "SEHAT PRIMA (Very Healthy)"
+    score_min: 4.5
+    score_max: 5.0
+  level_2:
+    label: "SEHAT (Healthy)"
+    score_min: 3.5
+    score_max: 4.4
+  level_3:
+    label: "CUKUP SEHAT (Fairly Healthy)"
+    score_min: 2.5
+    score_max: 3.4
+  level_4:
+    label: "KURANG SEHAT (Unhealthy)"
+    score_min: 1.5
+    score_max: 2.4
+  level_5:
+    label: "TIDAK SEHAT (Very Unhealthy)"
+    score_min: 1.0
+    score_max: 1.4

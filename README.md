@@ -402,6 +402,67 @@ pie title CAMELS-BPR Risk Weights
 
 ---
 
+## ✅ Feature Status
+
+| Feature | Status | Notes |
+|---------|--------|-------|
+| CLI (`init`, `run`, `report`, `info`) | ✅ Working | v1.0.0 |
+| `validate` command | ✅ Working | Config + data validation |
+| Auto Reader (Excel/CSV parser) | ✅ Working | Content-based type detection |
+| Financial Calculator | ✅ Working | NPL, PPKA, CAR, Beneish |
+| Orchestrator Engine (Node.js) | ✅ Working | 4-phase with EventEmitter |
+| Platform Adapters | ✅ Working | Gemini, Claude, Codex, DryRun |
+| Structured Logging | ✅ Working | Console + JSON file |
+| YAML Config (thresholds/benchmarks) | ✅ Working | Machine-readable |
+| `--dry-run` mode | ✅ Working | Preview execution plan |
+| `--agents` filter | ✅ Working | Run specific agents |
+| Test Suite (vitest + pytest) | ✅ Working | Config, validator, calculator |
+| Web Dashboard | 📋 Planned | Phase 2 |
+| Database Layer | 📋 Planned | Phase 2 |
+| API/SDK | 📋 Planned | Phase 3 |
+
+---
+
+## 🛠️ Development Setup
+
+```bash
+# Clone the repo
+git clone https://github.com/digimetalab/auditbpr.git
+cd auditbpr
+
+# Install Node.js dependencies
+npm install
+
+# Install Python dependencies (for tools)
+pip install openpyxl pandas pyyaml
+
+# Run JavaScript tests
+npm test
+
+# Run Python tests
+pytest test/ -v
+
+# Run all tests
+npm run test:all
+
+# Link CLI globally for development
+npm link
+```
+
+---
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature/your-feature`
+3. Make changes and add tests
+4. Run `npm run test:all` to ensure everything passes
+5. Submit a pull request
+
+See [CHANGELOG.md](CHANGELOG.md) for version history.
+
+---
+
 ## ⚠️ Disclaimer
 
 This system is a professional tool for BPR audit and investigation.

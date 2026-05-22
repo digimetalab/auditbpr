@@ -6,6 +6,7 @@ const fs = require('fs');
 const path = require('path');
 const chalk = require('chalk');
 const ora = require('ora');
+const { DEFAULT_CONFIG } = require('../config');
 
 async function initProject(options = {}) {
   const spinner = ora('Initializing BPR audit project...').start();
@@ -39,12 +40,13 @@ async function initProject(options = {}) {
     const configPath = path.join(cwd, '.auditbpr.json');
     if (!fs.existsSync(configPath)) {
       const defaultConfig = {
+        ...DEFAULT_CONFIG,
         bpr: {
+          ...DEFAULT_CONFIG.bpr,
           nama: 'PT BPR Example',
           kota: 'City',
           provinsi: 'Province',
           periode: '2020-2024',
-          no_izin_ojk: '',
         },
         pengurus: [
           { jabatan: 'Direktur Utama', nama: 'Full Name' },
@@ -57,10 +59,6 @@ async function initProject(options = {}) {
         riwayat_kap: [
           { tahun: '2020-2024', kap: 'KAP Name & Partners', ap: 'AP Name, CPA' },
         ],
-        platform: 'gemini',
-        output_language: 'id',
-        output_dir: './output',
-        data_dir: './data',
       };
 
       fs.writeFileSync(configPath, JSON.stringify(defaultConfig, null, 2));
@@ -86,7 +84,7 @@ async function initProject(options = {}) {
 
   } catch (error) {
     spinner.fail(chalk.red('Initialization failed: ' + error.message));
-    process.exit(1);
+    throw error;
   }
 }
 
